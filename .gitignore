@@ -1,0 +1,7 @@
+imgs/*
+*.json
+*.xlsx
+*.code-workspace
+*.png
+todo.txt
+**/__pycache__
