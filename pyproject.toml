@@ -16,13 +16,14 @@ classifiers = [
 ]
 dynamic = ["version", "description"]
 dependencies = [
-    "python-dotenv",
+    "ipywidgets",
     "matplotlib",
     "numpy",
     "pandas",
     "plotly",
     "Pillow",
     "pytesseract",
+    "python-dotenv",
     "Scrapy",
 ]
 
