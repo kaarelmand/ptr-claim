@@ -14,8 +14,10 @@ Currently only works with interior claims on the Tamriel Rebuilt website claims 
 
 ## Usage
 
-Open the command line and type `ptr-claim`. This will output a HTML file in the working
-directory. For more options, type `ptr-claim -h`:
+Open the command line and type `ptr-claim`. You will be asked for your Tamriel Rebuilt
+website login and password. This is only needed to populate the claimant and reviewer
+fields. If those aren't needed, you can enter empty values. The end result will be
+output as an HTML file in the working directory. For more options, type `ptr-claim -h`:
 
 ```
 usage: ptr-claim [-h] [-u URL] [-o OUTPUT] [-s SCRAPEFILE] [-w WIDTH] [-t TITLE] [-M METHODS]
