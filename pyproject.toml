@@ -1,0 +1,32 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "ptr-claim"
+authors = [{ name = "Kaarel Mänd", email = "kaarel.mand@protonmail.com" }]
+readme = "README.md"
+license = { file = "LICENSE" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Framework :: Scrapy",
+    "Framework :: Matplotlib",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+dynamic = ["version", "description"]
+dependencies = [
+    "python-dotenv",
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "Pillow",
+    "pytesseract",
+    "Scrapy",
+]
+
+[project.urls]
+Home = "https://github.com/kaarelmand/ptr-claim"
+
+[project.scripts]
+ptr-claim = "ptr_claim.__main__:main"

@@ -1,12 +1,13 @@
-from datetime import date
 import argparse
+from datetime import date
+import os
 
 import pandas as pd
 
-from scrape_tr import start_crawl
-from prep_data import prep_data
-from prep_data import CELL_SIZE as cell_size
-from draw_interactive import draw_interactive
+from ptr_claim.draw_interactive import draw_interactive
+from ptr_claim.prep_data import CELL_SIZE as cell_size
+from ptr_claim.prep_data import prep_data
+from ptr_claim.scrape_tr import crawl
 
 
 def visualize_ptr_claims(
@@ -19,9 +20,9 @@ def visualize_ptr_claims(
     methods="itue",
 ):
     # Crawl the website.
-    # TO DO -- make start_crawl output a python object, not a json file. Related to
+    # TO DO -- make crawl output a python object, not a json file. Related to
     #   scrapy Items.
-    start_crawl(starturl, scrape_outfile)
+    crawl(starturl, scrape_outfile)
 
     # Prepare the data.
     claims = pd.read_json(scrape_outfile)
@@ -40,7 +41,7 @@ def visualize_ptr_claims(
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="ptr-fetch",
+        prog="ptr-claim",
         description="Visualize interior claims on the Tamriel Rebuilt claims browser.",
     )
     parser.add_argument(
@@ -63,24 +64,6 @@ def main():
         "--scrapefile",
         default="interiors.json",
         help="JSON file to store scraping outputs in. Defaults to 'interiors.json'",
-    )
-    parser.add_argument(
-        "-m",
-        "--map",
-        default="Tamriel Rebuilt Province Map_2022-11-25.png",
-        help=(
-            "Map file on which to draw the claims. Defaults to"
-            + "'Tamriel Rebuilt Province Map_2022-11-25.png'."
-        ),
-    )
-    parser.add_argument(
-        "-c",
-        "--corners",
-        default="-42 61 -64 38",
-        help=(
-            "Cell coordinates for the corners of the provided map. Four integers "
-            + "separated by spaces. Defaults to '-42 61 -64 38'."
-        ),
     )
     parser.add_argument(
         "-w", "--width", default=1000, help="Output image width (px). Defaults to 1000."
@@ -111,19 +94,26 @@ def main():
     )
 
     args = parser.parse_args()
-    gridmap_corners = [int(c) * cell_size for c in args.corners.split()]
+
+    # TO DO: make background map configurable
+    mapfile = os.path.join(
+        os.path.dirname(__file__), "data", "Tamriel Rebuilt Province Map_2022-11-25.png"
+    )
+    gridmap_corners = "-42 61 -64 38"
+    gridmap_corners = [int(c) * cell_size for c in gridmap_corners.split()]
 
     fig = visualize_ptr_claims(
         starturl=args.url,
         scrape_outfile=args.output,
         gridmap_corners=gridmap_corners,
-        mapfile=args.map,
+        mapfile=mapfile,
         title=args.title,
         width=args.width,
         methods=args.methods,
     )
 
     fig.write_html(args.output)
+    print(f"Finished. Claim map saved to {args.output}.")
 
 
 if __name__ == "__main__":

@@ -1,8 +1,10 @@
 import getpass
+import os
 import re
+
 import scrapy
 from scrapy.crawler import CrawlerProcess
-import argparse
+from dotenv import load_dotenv
 
 
 class ScrapeTRSpider(scrapy.Spider):
@@ -103,22 +105,24 @@ class ScrapeTRSpider(scrapy.Spider):
 
 
 def fetch_credentials():
-    """Get login credentials for the Tamriel Rebuilt website. Checks working directory
-    for the file 'tr_secrets'. If not present, asks user on the command line.
+    """Get login credentials for the Tamriel Rebuilt website. Checks for environment
+    variables TR_LOGIN and TR_PASSWD. If not present, asks user on the command line.
 
     Returns:
         (str, str): login and password
     """
     try:
-        from tr_secrets import login, passwd
-    except ImportError:
+        load_dotenv()
+        login = os.environ["TR_LOGIN"]
+        passwd = os.environ["TR_PASSWD"]
+    except KeyError:
         print("Enter credentials for tamriel-rebuilt.org.")
         login = input("Login name: ")
         passwd = getpass.getpass()
     return login, passwd
 
 
-def start_crawl(url, outfile, crawler=ScrapeTRSpider, format="json"):
+def crawl(url, outfile, crawler=ScrapeTRSpider, format="json"):
     """Runs the specified crawler on the specified webpage.
 
     Args:
@@ -146,25 +150,3 @@ def start_crawl(url, outfile, crawler=ScrapeTRSpider, format="json"):
         claims_page=url,
     )
     process.start()
-
-def main():
-    parser = argparse.ArgumentParser(
-        prog="scrape-tr",
-        description="Scrapes the Tamriel Rebuilt website for claims.",
-    )
-    parser.add_argument(
-        "-i",
-        "--input",
-        default="https://www.tamriel-rebuilt.org/claims/interiors",
-        help="Claims browser page containing claims to be scraped.",
-    )
-    parser.add_argument(
-        "-o", "--output", default="interiors.json", help="Output json file."
-    )
-    args = parser.parse_args()
-
-    start_crawl(args.input, args.output)
-
-
-if __name__ == "__main__":
-    main()

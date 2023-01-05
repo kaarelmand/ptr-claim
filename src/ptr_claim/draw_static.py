@@ -1,10 +1,11 @@
 import argparse
 from cycler import cycler
+from datetime import date
+
 import matplotlib.pyplot as plt
 from matplotlib import lines as mlines
-import pandas as pd
 import numpy as np
-from datetime import date
+import pandas as pd
 
 from prep_data import _stages as stages
 from prep_data import CELL_SIZE as cell_size

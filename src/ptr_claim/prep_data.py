@@ -1,14 +1,16 @@
-import pandas as pd
-import numpy as np
+import json
 import logging
-from PIL import Image
+import os
+import re
 from urllib.request import urlopen
 from urllib.error import HTTPError
-import pytesseract
-import json
-import argparse
-import re
 
+import numpy as np
+import pandas as pd
+from PIL import Image
+import pytesseract
+
+from ptr_claim import data
 
 # Mapping parameters
 CELL_SIZE = 8192
@@ -70,7 +72,6 @@ def fill_coords_from_images(
     df,
     url_col="image_url",
     coord_cols=("cell_x", "cell_y"),
-    coord_db_path="img_coords.json",
     na_only=True,
     **kwargs,
 ):
@@ -83,8 +84,6 @@ def fill_coords_from_images(
             to "image_url".
         coord_cols (tuple, optional): Tuple of two df column names where the resulting
             coordinates are stored. Defaults to ("cell_x", "cell_y").
-        coord_db_path (str): path to json file which will be used to store coordinates
-            from images and write them afterwards
         na_only (bool): Whether to fill only missing values in this method. Defaults to
             True.
         **kwargs: passed to get_coords_from_image
@@ -98,15 +97,12 @@ def fill_coords_from_images(
     logging.debug(f"Modifying {df[mask].shape[0]} rows.")
 
     # Fetch known coordinate values from file.
-    try:
-        with open(coord_db_path) as coord_db_file:
-            coord_db = json.load(coord_db_file)
-            logging.debug(
-                f"Found existing image coordinate database at {coord_db_path}."
-            )
-    except FileNotFoundError:
-        logging.debug(f"No database found at {coord_db_path}. Starting a new one.")
-        coord_db = {}
+    # with resources.open_binary(data, "img_coords.json") as coord_db_file:
+
+    img_coord_path = os.path.join(os.path.dirname(__file__), "data", "img_coords.json")
+    with open(img_coord_path) as coord_db_file:
+        coord_db = json.load(coord_db_file)
+        logging.debug(f"Using existing image coordinate database.")
 
     # Only fetch images that aren't in the database yet.
     requested_imgs = df.loc[mask, url_col].to_list()
@@ -116,10 +112,10 @@ def fill_coords_from_images(
         for url in new_imgs:
             coord_db[url] = get_coords_from_image(url, **kwargs)
 
-        # Write database back to file
-        with open(coord_db_path, "w") as new_coord_db:
-            logging.debug(f"Saving image coordinate database at {coord_db_path}")
-            json.dump(coord_db, new_coord_db, indent=4)
+        # Print missing URLs
+        logging.info("New coordinates found by OCR:")
+        for url in new_imgs:
+            logging.info(f"{url}: {coord_db[url]}")
     else:
         logging.debug("No new images needed.")
 
@@ -206,7 +202,7 @@ def make_nice_hovertext(x, url=False):
     return txt
 
 
-def locate_claims(claims, methods, titledb="name_hints.json", urldb="url_hints.json"):
+def locate_claims(claims, methods):
 
     if "i" in methods:
         # Use OCR to read missing cell coordinates.
@@ -219,7 +215,11 @@ def locate_claims(claims, methods, titledb="name_hints.json", urldb="url_hints.j
 
     if "t" in methods:
         # Use known location names to guess missing cell coordinates.
-        with open(titledb, "r") as namefile:
+        # with resources.open_binary(data, "name_hints.json") as namefile:
+        name_hints_path = os.path.join(
+            os.path.dirname(__file__), "data", "name_hints.json"
+        )
+        with open(name_hints_path) as namefile:
             name_hints = json.load(namefile)
         fill_coords_from_hints(claims, name_hints, "title")
         logging.info(
@@ -240,7 +240,12 @@ def locate_claims(claims, methods, titledb="name_hints.json", urldb="url_hints.j
 
     if "u" in methods:
         # Use known urls to get missing cell coordinates for one-offs.
-        with open(urldb, "r") as urlfile:
+        # with resources.open_binary(data, "url_hints.json") as urlfile:
+
+        url_hints_path = os.path.join(
+            os.path.dirname(__file__), "data", "url_hints.json"
+        )
+        with open(url_hints_path) as urlfile:
             url_hints = json.load(urlfile)
         fill_coords_from_hints(claims, url_hints, "url", na_only=False)
 
@@ -301,59 +306,3 @@ def prep_data(claims, methods="itue"):
 
     # Return usable data.
     return aggregated_claims
-
-
-def main():
-    # Set the logging level on the command line.
-    parser = argparse.ArgumentParser(
-        prog="prep-claim-data",
-        description=(
-            "Analyzes and corrects web-scraped Tamriel Rebuilt and"
-            + "Project Tamriel claim data."
-        ),
-    )
-    parser.add_argument(
-        "-i",
-        "--input",
-        default="interiors.json",
-        help="Input json file containing scraped claims.",
-    )
-    parser.add_argument(
-        "-o",
-        "--output",
-        default="aggregated_claims.json",
-        help="Output json file containing per-cell aggregated claims.",
-    )
-    parser.add_argument(
-        "-l",
-        "--loglevel",
-        default="WARNING",
-        choices=logging._nameToLevel.keys(),
-        help="Provide logging level. Example --loglevel DEBUG, default=WARNING",
-    )
-    parser.add_argument(
-        "-m",
-        "--methods",
-        default="itue",
-        help=(
-            """How to locate missing coordinates.
-                'i' uses optical character recognition on claim images.
-                't' uses parts of the title to guess the coordinates.
-                'u' uses known URLs. You can specify several flags.
-                'e' fixes Embers of Empire coordinates.
-            Default="itue".
-        """
-        ),
-    )
-    args = parser.parse_args()
-    logging.basicConfig(level=args.loglevel.upper())
-
-    # Read scraped data.
-    claims = pd.read_json(args.input)
-
-    agg_claims = prep_data(claims=claims, methods=args.methods)
-    agg_claims.to_json(args.output)
-
-
-if __name__ == "__main__":
-    main()
