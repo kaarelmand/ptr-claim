@@ -20,6 +20,7 @@ dependencies = [
     "matplotlib",
     "numpy",
     "pandas",
+    "plotly",
     "Pillow",
     "pytesseract",
     "Scrapy",

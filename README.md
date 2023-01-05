@@ -5,7 +5,9 @@ Currently only works with interior claims on the Tamriel Rebuilt website claims 
 
 ## Installation
 
-1. Make sure you have python version 3.7 or higher installed.
+1. Make sure you have python version 3.7 or higher installed and that python is
+   added to your PATH (i.e., accessible from the command line) For Windows, [see
+   instructions here](https://datatofish.com/add-python-to-windows-path/).
 2. Install the Tesseract OCR (optical character recognition) engine
    ([install instructions](https://tesseract-ocr.github.io/tessdoc/Installation.html);
    on Windows, grab the binary from [here](https://github.com/UB-Mannheim/tesseract/wiki#tesseract-installer-for-windows)).
