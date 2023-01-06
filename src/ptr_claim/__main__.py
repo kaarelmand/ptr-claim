@@ -18,11 +18,13 @@ def visualize_ptr_claims(
     title=f"Tamriel Rebuilt interior claims {date.today()}",
     width=1000,
     methods="itue",
+    noscrape=False,
 ):
     # Crawl the website.
     # TO DO -- make crawl output a python object, not a json file. Related to
     #   scrapy Items.
-    crawl(starturl, scrape_outfile)
+    if not noscrape:
+        crawl(starturl, scrape_outfile)
 
     # Prepare the data.
     claims = pd.read_json(scrape_outfile)
@@ -70,6 +72,14 @@ def main():
         help="JSON file to store scraping outputs in. Defaults to 'interiors.json'",
     )
     parser.add_argument(
+        "--noscrape",
+        action="store_true",
+        help=(
+            "Do not scrape the website. Expects and existing JSON file, specified "
+            + "by --scrapefile."
+        ),
+    )
+    parser.add_argument(
         "-w", "--width", default=1000, help="Output image width (px). Defaults to 1000."
     )
     parser.add_argument(
@@ -108,12 +118,13 @@ def main():
 
     fig = visualize_ptr_claims(
         starturl=args.url,
-        scrape_outfile=args.output,
+        scrape_outfile=args.scrapefile,
         gridmap_corners=gridmap_corners,
         mapfile=mapfile,
         title=args.title,
         width=args.width,
         methods=args.methods,
+        noscrape=args.noscrape,
     )
 
     if ".html" in args.output:

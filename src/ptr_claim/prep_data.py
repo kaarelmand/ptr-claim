@@ -252,7 +252,7 @@ def locate_claims(claims, methods):
     if claims[claims["cell_x"].isna()].shape[0] > 0:
         not_located = claims.loc[claims["cell_x"].isna(), "url"].tolist()
         logging.warning(
-            f"{len(not_located)} claims not located: " + "\n".join(not_located)
+            f"{len(not_located)} claims not located: \n" + "\n".join(not_located)
         )
     else:
         logging.info("All claims located!")
