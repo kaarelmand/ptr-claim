@@ -17,7 +17,7 @@ classifiers = [
 dynamic = ["version", "description"]
 dependencies = [
     "ipywidgets",
-    "matplotlib",
+    "kaleido",
     "numpy",
     "pandas",
     "plotly",

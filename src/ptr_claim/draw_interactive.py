@@ -5,7 +5,7 @@ from plotly.colors import sample_colorscale
 from ptr_claim.prep_data import _stages as stages
 
 
-def draw_interactive(claims, map, corners, title, width=1000, cmap="RdYlGn"):
+def draw_interactive(claims, map, corners, title, width=1000, cmap="Plasma"):
 
     fig = go.FigureWidget(
         layout_xaxis_range=(corners[0], corners[1]),

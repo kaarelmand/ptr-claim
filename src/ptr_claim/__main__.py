@@ -57,7 +57,11 @@ def main():
         "-o",
         "--output",
         default="TR_int_claims.html",
-        help="Output interactive image file. Defaults to 'TR_int_claims.html'.",
+        help=(
+            "Output image filename. If the file extension is .html, the image will "
+            + "be interactive. Extensions like .png, .jpeg, .webp, .svg, or .pdf will "
+            + "result in a static image. Defaults to 'TR_int_claims.html'."
+        ),
     )
     parser.add_argument(
         "-s",
@@ -112,7 +116,10 @@ def main():
         methods=args.methods,
     )
 
-    fig.write_html(args.output)
+    if ".html" in args.output:
+        fig.write_html(args.output)
+    else:
+        fig.write_image(args.output)
     print(f"Finished. Claim map saved to {args.output}.")
 
 
