@@ -13,7 +13,6 @@ import pytesseract
 from ptr_claim import data
 
 # Mapping parameters
-CELL_SIZE = 8192
 _stages = [
     "Design",
     "Unclaimed",
@@ -294,13 +293,9 @@ def prep_data(claims, methods="itue"):
         stage_groups=("stage", get_stage_counts),
     ).reset_index()
 
-    # Coordinates in units, not cells, and count numbers larger
-    aggregated_claims["cell_x_map"] = (
-        aggregated_claims["cell_x"] * CELL_SIZE + CELL_SIZE / 2
-    )
-    aggregated_claims["cell_y_map"] = (
-        aggregated_claims["cell_y"] * CELL_SIZE + CELL_SIZE / 2
-    )
+    # Put mapping coordinates in the middle of the cells.
+    aggregated_claims["cell_x_map"] = aggregated_claims["cell_x"] + 0.5
+    aggregated_claims["cell_y_map"] = aggregated_claims["cell_y"] + 0.5
     # We want plotted counts to scale with area and in a logarithmic fashion.
     aggregated_claims["map_size"] = (np.log(aggregated_claims["count"]) + 1) * 30
 

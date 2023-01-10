@@ -6,22 +6,24 @@ Currently only works with interior claims on the Tamriel Rebuilt website claims 
 ## Installation
 
 1. Make sure you have python version 3.7 or higher installed and that python is
-   added to your PATH (i.e., accessible from the command line). For Windows, [see
-   instructions here](https://datatofish.com/add-python-to-windows-path/).
+   added to your PATH (i.e., accessible from the command line). For Windows,
+   [see instructions here](https://datatofish.com/add-python-to-windows-path/).
 2. Install the Tesseract OCR (optical character recognition) engine -- see the
    [install instructions](https://tesseract-ocr.github.io/tessdoc/Installation.html).
    On Windows, grab the binary from
    [the UB Mannheim site](https://github.com/UB-Mannheim/tesseract/wiki#tesseract-installer-for-windows)).
 3. On the command line, type `pip install ptr-claim`. This should download the program
    and all required dependencies.
-4. On Windows, you will additionally need to install [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
+4. On Windows, you will additionally need to install
+   [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
 
 ## Usage
 
 Open the command line and type `ptr-claim`. You will be asked for your Tamriel Rebuilt
 website login and password. This is only needed to populate the claimant and reviewer
-fields. If those aren't needed, you can enter empty values. The end result will be
-output as an HTML file in the working directory. For more options, type `ptr-claim -h`:
+fields. If those aren't needed, you can enter empty values. The end result will, by
+default, be output as an HTML file in the working directory. For more options, type
+`ptr-claim -h`:
 
 ```
 Visualize interior claims on the Tamriel Rebuilt claims browser.
