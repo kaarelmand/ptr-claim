@@ -1,0 +1,11 @@
+ipywidgets
+dash
+gunicorn
+kaleido
+numpy
+pandas
+plotly
+Pillow
+pytesseract
+python-dotenv
+Scrapy

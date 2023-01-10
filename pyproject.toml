@@ -17,6 +17,7 @@ classifiers = [
 dynamic = ["version", "description"]
 dependencies = [
     "ipywidgets",
+    "dash",
     "kaleido",
     "numpy",
     "pandas",
