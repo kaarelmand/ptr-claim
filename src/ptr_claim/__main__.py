@@ -65,6 +65,17 @@ def app_output(args, mapfile, gridmap_corners):
     Timer(1, open_browser).start()
     app.run(debug=args.debug)
 
+def run_app(url='', scrapefile='interiors.json', methods="itue"):
+    crawl(url, scrapefile)
+    claims = pd.read_json(scrapefile)
+    agg_claims = prep_data(claims, methods)
+    mapfile = os.path.join(
+        os.path.dirname(__file__), "data", "Tamriel Rebuilt Province Map_2022-11-25.png"
+    )
+    gridmap_corners = [-42, 61, -64, 38]
+    app = make_app(agg_claims, claims, mapfile, gridmap_corners)
+    app.run()
+
 
 def add_common_arguments(parser):
     parser.add_argument(
