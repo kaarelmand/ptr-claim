@@ -10,8 +10,6 @@ import pandas as pd
 from PIL import Image
 import pytesseract
 
-from ptr_claim import data
-
 # Mapping parameters
 _stages = [
     "Design",

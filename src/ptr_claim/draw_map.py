@@ -2,7 +2,7 @@ from PIL import Image
 import plotly.graph_objects as go
 from plotly.colors import sample_colorscale
 
-from ptr_claim.prep_data import _stages as stages
+from .prep_data import _stages as stages
 
 
 def draw_map(claims, map, corners, title, width=1000, cmap="Plasma"):

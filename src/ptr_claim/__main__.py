@@ -65,33 +65,29 @@ def app_output(args, mapfile, gridmap_corners):
     Timer(1, open_browser).start()
     app.run(debug=args.debug)
 
-def run_app(url='', scrapefile='interiors.json', methods="itue"):
-    crawl(url, scrapefile)
-    claims = pd.read_json(scrapefile)
-    agg_claims = prep_data(claims, methods)
-    mapfile = os.path.join(
-        os.path.dirname(__file__), "data", "Tamriel Rebuilt Province Map_2022-11-25.png"
-    )
-    gridmap_corners = [-42, 61, -64, 38]
-    app = make_app(agg_claims, claims, mapfile, gridmap_corners)
-    app.run()
-
 
 def add_common_arguments(parser):
     parser.add_argument(
         "-u",
         "--url",
-        default="https://www.tamriel-rebuilt.org/claims/interiors",
+        default=os.environ.get(
+            "PTR_URL", "https://www.tamriel-rebuilt.org/claims/interiors"
+        ),
         help=(
             "Claims browser page containing claims to be scraped. Defaults to "
+            + "environment variable 'PTR_URL' or "
             + "'https://www.tamriel-rebuilt.org/claims/interiors'."
         ),
     )
     parser.add_argument(
         "-s",
         "--scrapefile",
-        default="interiors.json",
-        help="JSON file to store scraping outputs in. Defaults to 'interiors.json'",
+        default=os.environ.get("PTR_SCRAPEFILE", "interiors.json"),
+        help=(
+            "JSON file to store scraping outputs in. Defaults to "
+            + "environment variable 'PTR_SCRAPEFILE' or "
+            + "'interiors.json'"
+        ),
     )
     parser.add_argument(
         "--noscrape",
@@ -104,7 +100,7 @@ def add_common_arguments(parser):
     parser.add_argument(
         "-M",
         "--methods",
-        default="itue",
+        default=os.environ.get("PTR_METHODS", "itue"),
         help=(
             """How to locate missing claim coordinates.
                 'i' uses optical character recognition on claim images.
@@ -112,7 +108,7 @@ def add_common_arguments(parser):
                 'u' uses known URLs. 
                 'e' fixes Embers of Empire coordinates.
             You can specify several flags.
-            Defaults to "itue".
+            Defaults to environment variable 'PTR_METHODS' or "itue".
         """
         ),
     )
@@ -125,6 +121,27 @@ def main():
     )
     add_common_arguments(parser)
     parser.add_argument(
+        "-t",
+        "--title",
+        default=os.environ.get("PTR_TITLE", "Tamriel Rebuilt | Interior claims"),
+        help=(
+            "Title of the output app. Defaults to environment variable 'PTR_TITLE' or"
+            + " 'Tamriel Rebuilt | Interior claims'."
+        ),
+    )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        help="Show debug messages and reload the app upon code change.",
+    )
+    parser.set_defaults(func=app_output)
+
+    subparsers = parser.add_subparsers()
+    static_parser = subparsers.add_parser("static")
+    add_common_arguments(static_parser)
+
+    static_parser.add_argument(
         "-o",
         "--output",
         default="TR_int_claims.html",
@@ -134,10 +151,10 @@ def main():
             + "result in a static image. Defaults to 'TR_int_claims.html'."
         ),
     )
-    parser.add_argument(
+    static_parser.add_argument(
         "-w", "--width", default=1000, help="Output image width (px). Defaults to 1000."
     )
-    parser.add_argument(
+    static_parser.add_argument(
         "-t",
         "--title",
         default=f"Tamriel Rebuilt interior claims {date.today()}",
@@ -146,34 +163,13 @@ def main():
             + "interior claims {date.today()}'."
         ),
     )
-    parser.add_argument(
+    static_parser.add_argument(
         "-d",
         "--debug",
         action="store_true",
         help="Show debug messages.",
     )
-    parser.set_defaults(func=static_output)
-
-    subparsers = parser.add_subparsers()
-    app_parser = subparsers.add_parser("app")
-    add_common_arguments(app_parser)
-    app_parser.add_argument(
-        "-t",
-        "--title",
-        default="Tamriel Rebuilt | Interior claims",
-        help=(
-            "Title of the output app. Defaults to 'Tamriel Rebuilt |"
-            + " Interior claims'."
-        ),
-    )
-    app_parser.add_argument(
-        "-d",
-        "--debug",
-        action="store_true",
-        help="Show debug messages and reload the app upon code change.",
-    )
-    app_parser.set_defaults(func=app_output)
-
+    static_parser.set_defaults(func=static_output)
     args = parser.parse_args()
 
     # Set debug
@@ -182,7 +178,7 @@ def main():
     else:
         logging.basicConfig(level=logging.WARNING)
 
-    # TO DO: make background map and coordinates configurable
+    # TODO: make background map and coordinates configurable
     mapfile = os.path.join(
         os.path.dirname(__file__), "data", "Tamriel Rebuilt Province Map_2022-11-25.png"
     )

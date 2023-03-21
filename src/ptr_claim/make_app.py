@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from dash import Dash, dcc, html, Input, Output
 
-from ptr_claim.draw_map import draw_map
+from .draw_map import draw_map
 
 
 def generate_row(ser):
