@@ -113,8 +113,8 @@ def fetch_credentials():
     """
     try:
         load_dotenv()
-        login = os.environ["TR_LOGIN"]
-        passwd = os.environ["TR_PASSWD"]
+        login = os.environ["PTR_TR_LOGIN"]
+        passwd = os.environ["PTR_TR_PASSWD"]
     except KeyError:
         print("Enter credentials for tamriel-rebuilt.org.")
         login = input("Login name: ")

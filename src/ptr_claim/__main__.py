@@ -1,192 +1,74 @@
-import argparse
-from datetime import date
-import logging
+from datetime import datetime, timezone
 import os
-from threading import Timer
-import webbrowser
 
 import pandas as pd
+from dash import Dash, html, dcc, Output, Input
 
 from ptr_claim.draw_map import draw_map
 from ptr_claim.prep_data import prep_data
 from ptr_claim.scrape_tr import crawl
-from ptr_claim.make_app import make_app
+from ptr_claim.make_app import generate_table
 
 
-def static_output(args, gridmap_corners, mapfile):
-    # Crawl the website.
-    # TO DO -- make crawl output a python object, not a json file. Related to scrapy
-    #   Items.
-    if not args.noscrape:
-        crawl(args.url, args.scrapefile)
-
-    # Prepare the data.
-    claims = pd.read_json(args.scrapefile)
-    agg_claims = prep_data(claims=claims, methods=args.methods)
-
-    # Draw figure.
-    fig = draw_map(
-        claims=agg_claims,
-        map=mapfile,
-        corners=gridmap_corners,
-        title=args.title,
-        width=args.width,
-    )
-
-    # Output
-    if ".html" in args.output:
-        fig.write_html(args.output)
-    else:
-        fig.write_image(args.output)
-    print(f"Finished. Claim map saved to {args.output}.")
+SCRAPESWITCH = os.environ.get("PTR_SCRAPESWITCH", "False")
+URL = os.environ.get("PTR_URL", "https://www.tamriel-rebuilt.org/claims/interiors")
+SCRAPEFILE = os.environ.get("PTR_SCRAPEFILE", "interiors.json")
+METHODS = os.environ.get("PTR_METHODS", "itue")
+MAPFILE = os.environ.get("PTR_MAPFILE", "Tamriel Rebuilt Province Map_2022-11-25.png")
+MAPCORNERS = os.environ.get("PTR_MAPCORNERS", "-42 61 -64 38")
+WIDTH = os.environ.get("PTR_WIDTH", "900")
 
 
-def open_browser():
-    webbrowser.open(
-        f"http://{os.getenv('HOST', '127.0.0.1')}:{os.getenv('PORT', '8050')}/"
-    )
+mapfile = os.path.join(os.path.dirname(__file__), "data", MAPFILE)
+gridmap_corners = [int(c) for c in MAPCORNERS.split()]
 
+if SCRAPESWITCH.lower().strip() in ("true", "t", "yes", "y", "1"):
+    crawl(URL, SCRAPEFILE)
 
-def app_output(args, mapfile, gridmap_corners):
-    # Scrape.
-    if not args.noscrape:
-        crawl(args.url, args.scrapefile)
+claims = pd.read_json(SCRAPEFILE)
+agg_claims = prep_data(claims=claims, methods=METHODS)
 
-    # Prepare the data.
-    claims = pd.read_json(args.scrapefile)
-    agg_claims = prep_data(claims=claims, methods=args.methods)
+fig = draw_map(
+    claims=agg_claims,
+    map=mapfile,
+    corners=gridmap_corners,
+    width=float(WIDTH),
+    title="",
+)
 
-    app = make_app(
-        agg_claims=agg_claims, claims=claims, mapfile=mapfile, corners=gridmap_corners
-    )
+app = Dash(
+    __name__, external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css"]
+)
 
-    # We need to start a new thread to open the browser, since this the main one will
-    #   be occupied running the app.
-    Timer(1, open_browser).start()
-    app.run(debug=args.debug)
-
-
-def add_common_arguments(parser):
-    parser.add_argument(
-        "-u",
-        "--url",
-        default=os.environ.get(
-            "PTR_URL", "https://www.tamriel-rebuilt.org/claims/interiors"
+app.layout = html.Div(
+    [
+        html.H1(
+            "Tamriel Rebuilt | Interior claims",
         ),
-        help=(
-            "Claims browser page containing claims to be scraped. Defaults to "
-            + "environment variable 'PTR_URL' or "
-            + "'https://www.tamriel-rebuilt.org/claims/interiors'."
+        html.Div(datetime.now(timezone.utc).strftime(r"%Y-%m-%d %H:%M %Z")),
+        dcc.Graph(id="clickable-graph", figure=fig),
+        html.Div(
+            id="claim-info-output",
         ),
-    )
-    parser.add_argument(
-        "-s",
-        "--scrapefile",
-        default=os.environ.get("PTR_SCRAPEFILE", "interiors.json"),
-        help=(
-            "JSON file to store scraping outputs in. Defaults to "
-            + "environment variable 'PTR_SCRAPEFILE' or "
-            + "'interiors.json'"
-        ),
-    )
-    parser.add_argument(
-        "--noscrape",
-        action="store_true",
-        help=(
-            "Do not scrape the website. Expects and existing JSON file, specified "
-            + "by --scrapefile."
-        ),
-    )
-    parser.add_argument(
-        "-M",
-        "--methods",
-        default=os.environ.get("PTR_METHODS", "itue"),
-        help=(
-            """How to locate missing claim coordinates.
-                'i' uses optical character recognition on claim images.
-                't' uses parts of the title to guess the coordinates.
-                'u' uses known URLs. 
-                'e' fixes Embers of Empire coordinates.
-            You can specify several flags.
-            Defaults to environment variable 'PTR_METHODS' or "itue".
-        """
-        ),
-    )
+    ],
+)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        prog="ptr-claim",
-        description="Visualize interior claims on the Tamriel Rebuilt claims browser.",
-    )
-    add_common_arguments(parser)
-    parser.add_argument(
-        "-t",
-        "--title",
-        default=os.environ.get("PTR_TITLE", "Tamriel Rebuilt | Interior claims"),
-        help=(
-            "Title of the output app. Defaults to environment variable 'PTR_TITLE' or"
-            + " 'Tamriel Rebuilt | Interior claims'."
-        ),
-    )
-    parser.add_argument(
-        "-d",
-        "--debug",
-        action="store_true",
-        help="Show debug messages and reload the app upon code change.",
-    )
-    parser.set_defaults(func=app_output)
+@app.callback(
+    Output("claim-info-output", "children"), Input("clickable-graph", "clickData")
+)
+def display_on_click(clickData):
+    try:
+        x, y = clickData["points"][0]["customdata"]
+        filtered_data = claims[(claims["cell_x"] == x) & (claims["cell_y"] == y)]
+        return generate_table(filtered_data)
+    except TypeError:
+        return "Click on any point to show claim information."
 
-    subparsers = parser.add_subparsers()
-    static_parser = subparsers.add_parser("static")
-    add_common_arguments(static_parser)
 
-    static_parser.add_argument(
-        "-o",
-        "--output",
-        default="TR_int_claims.html",
-        help=(
-            "Output image filename. If the file extension is .html, the image will "
-            + "be interactive. Extensions like .png, .jpeg, .webp, .svg, or .pdf will "
-            + "result in a static image. Defaults to 'TR_int_claims.html'."
-        ),
-    )
-    static_parser.add_argument(
-        "-w", "--width", default=1000, help="Output image width (px). Defaults to 1000."
-    )
-    static_parser.add_argument(
-        "-t",
-        "--title",
-        default=f"Tamriel Rebuilt interior claims {date.today()}",
-        help=(
-            "Title to be printed on the output. Defaults to 'Tamriel Rebuilt "
-            + "interior claims {date.today()}'."
-        ),
-    )
-    static_parser.add_argument(
-        "-d",
-        "--debug",
-        action="store_true",
-        help="Show debug messages.",
-    )
-    static_parser.set_defaults(func=static_output)
-    args = parser.parse_args()
-
-    # Set debug
-    if args.debug:
-        logging.basicConfig(level=logging.DEBUG)
-    else:
-        logging.basicConfig(level=logging.WARNING)
-
-    # TODO: make background map and coordinates configurable
-    mapfile = os.path.join(
-        os.path.dirname(__file__), "data", "Tamriel Rebuilt Province Map_2022-11-25.png"
-    )
-    gridmap_corners = "-42 61 -64 38"
-    gridmap_corners = [int(c) for c in gridmap_corners.split()]
-
-    args.func(args, mapfile=mapfile, gridmap_corners=gridmap_corners)
+def main(debug=False):
+    app.run_server(debug=debug)
 
 
 if __name__ == "__main__":
-    main()
+    app.run_server()

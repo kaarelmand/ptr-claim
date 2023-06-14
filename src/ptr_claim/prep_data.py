@@ -45,7 +45,7 @@ def get_coords_from_image(url, crop_coords=(0, 0, 300, 35), upscale=2, **kwargs)
     try:
         image = Image.open(urlopen(url))
     except HTTPError:
-        logging.debug(f"Could not access image.")
+        logging.debug("Could not access image.")
         return None, None
     image_small = image.crop(crop_coords)
     image_upscaled = image_small.resize(
@@ -61,7 +61,7 @@ def get_coords_from_image(url, crop_coords=(0, 0, 300, 35), upscale=2, **kwargs)
         logging.debug(f"Found coordinates {(x, y)}.")
         return int(x), int(y)
     except AttributeError:
-        logging.debug(f"Found no coordinates.")
+        logging.debug("Found no coordinates.")
         return None, None
 
 
@@ -99,7 +99,7 @@ def fill_coords_from_images(
     img_coord_path = os.path.join(os.path.dirname(__file__), "data", "img_coords.json")
     with open(img_coord_path) as coord_db_file:
         coord_db = json.load(coord_db_file)
-        logging.debug(f"Using existing image coordinate database.")
+        logging.debug("Using existing image coordinate database.")
 
     # Only fetch images that aren't in the database yet.
     requested_imgs = df.loc[mask, url_col].to_list()
@@ -203,7 +203,7 @@ def locate_claims(claims, methods):
 
     if "i" in methods:
         # Use OCR to read missing cell coordinates.
-        logging.info(f"Fetching images for all unlocated claims.")
+        logging.info("Fetching images for all unlocated claims.")
         fill_coords_from_images(claims)
         logging.info(
             f"{claims[claims['cell_x'].isna()].shape[0]}"

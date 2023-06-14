@@ -36,7 +36,7 @@ def make_app(agg_claims, claims, mapfile, corners, width=900):
     app.layout = html.Div(
         [
             html.H1(
-                f"Tamriel Rebuilt | Interior claims",
+                "Tamriel Rebuilt | Interior claims",
             ),
             html.Div(datetime.now(timezone.utc).strftime(r"%Y-%m-%d %H:%M %Z")),
             dcc.Graph(id="clickable-graph", figure=fig),
