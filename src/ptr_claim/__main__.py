@@ -10,7 +10,7 @@ from ptr_claim.scrape_tr import crawl
 from ptr_claim.make_app import generate_table
 
 
-SCRAPESWITCH = os.environ.get("PTR_SCRAPESWITCH", "False")
+SCRAPESWITCH = os.environ.get("PTR_SCRAPESWITCH", "True")
 URL = os.environ.get("PTR_URL", "https://www.tamriel-rebuilt.org/claims/interiors")
 SCRAPEFILE = os.environ.get("PTR_SCRAPEFILE", "interiors.json")
 METHODS = os.environ.get("PTR_METHODS", "itue")
