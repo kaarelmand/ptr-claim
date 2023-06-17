@@ -10,8 +10,8 @@ Currently only works with interior claims on the Tamriel Rebuilt website claims 
    [see instructions here](https://datatofish.com/add-python-to-windows-path/).
 2. Install the Tesseract OCR (optical character recognition) engine -- see the
    [install instructions](https://tesseract-ocr.github.io/tessdoc/Installation.html).
-   On Windows, grab the binary from
-   [the UB Mannheim site](https://github.com/UB-Mannheim/tesseract/wiki#tesseract-installer-for-windows)).
+   On Windows, grab the binary from the
+   [UB Mannheim site](https://github.com/UB-Mannheim/tesseract/wiki#tesseract-installer-for-windows).
 3. On the command line, type `pip install ptr-claim`. This should download the program
    and all required dependencies.
 4. On Windows, you will additionally need to install
