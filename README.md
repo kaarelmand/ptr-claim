@@ -24,7 +24,7 @@ website login and password. This is only needed to populate the claimant and rev
 fields. If those aren't needed, you can enter empty values. The end result will, by
 default, be output as an HTML file in the working directory.
 
-For now, options can be passed using environment variables:
+Options can be left default for most purposes. If you do want to customize, then options can be passed using environment variables:
 - PTR_TR_LOGIN and PTR_TR_PASSWD -- The username and password for
   www.tamriel-rebuilt.org. If not present, the user is prompted to enter the 
   credentials on the command line.
