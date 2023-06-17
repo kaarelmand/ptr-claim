@@ -39,6 +39,7 @@ fig = draw_map(
 app = Dash(
     __name__, external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 )
+server = app.server
 
 app.layout = html.Div(
     [
@@ -64,10 +65,6 @@ def display_on_click(clickData):
         return generate_table(filtered_data)
     except TypeError:
         return "Click on any point to show claim information."
-
-
-def main(debug=False):
-    app.run_server(debug=debug)
 
 
 if __name__ == "__main__":
