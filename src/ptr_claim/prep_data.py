@@ -27,10 +27,11 @@ def get_coords_from_image(url, crop_coords=(0, 0, 300, 35), upscale=2, **kwargs)
     """Fetch coordinates from an image on specified url using pytesseract.
 
     Args:
-        url (str): url from which to find image.
-        crop_coords (tuple, optional): Crop the image to find the cell coordinates.
-         Defaults to (0, 0, 200, 50).
-        upscale: Scaling a small image up often helps Tesseract.
+        url (str): URL from which to find image.
+        crop_coords (tuple, optional): Heuristically crop the image to find the cell
+            coordinates. Defaults to (0, 0, 200, 50).
+        upscale (int, optional): Factor to scale images by. Scaling a small image up
+            often helps Tesseract.
         **kwargs: Passed to pytesseract.image_to_string.
 
     Returns:
@@ -200,6 +201,16 @@ def make_nice_hovertext(x, url=False):
 
 
 def locate_claims(claims, methods):
+    if "u" in methods:
+        # Use known urls to get missing cell coordinates for one-offs.
+        # TODO: try to use importlib.resources or at least Pathlib
+        # with resources.open_binary(data, "url_hints.json") as urlfile:
+        url_hints_path = os.path.join(
+            os.path.dirname(__file__), "data", "url_hints.json"
+        )
+        with open(url_hints_path) as urlfile:
+            url_hints = json.load(urlfile)
+        fill_coords_from_hints(claims, url_hints, "url", na_only=False)
 
     if "i" in methods:
         # Use OCR to read missing cell coordinates.
@@ -212,6 +223,7 @@ def locate_claims(claims, methods):
 
     if "t" in methods:
         # Use known location names to guess missing cell coordinates.
+        # TODO: try to use importlib.resources or at least Pathlib
         # with resources.open_binary(data, "name_hints.json") as namefile:
         name_hints_path = os.path.join(
             os.path.dirname(__file__), "data", "name_hints.json"
@@ -235,17 +247,6 @@ def locate_claims(claims, methods):
             )
         )
 
-    if "u" in methods:
-        # Use known urls to get missing cell coordinates for one-offs.
-        # with resources.open_binary(data, "url_hints.json") as urlfile:
-
-        url_hints_path = os.path.join(
-            os.path.dirname(__file__), "data", "url_hints.json"
-        )
-        with open(url_hints_path) as urlfile:
-            url_hints = json.load(urlfile)
-        fill_coords_from_hints(claims, url_hints, "url", na_only=False)
-
     if claims[claims["cell_x"].isna()].shape[0] > 0:
         not_located = claims.loc[claims["cell_x"].isna(), "url"].tolist()
         logging.warning(
@@ -256,7 +257,6 @@ def locate_claims(claims, methods):
 
 
 def prep_data(claims, methods="itue"):
-
     logging.info(
         f"{claims[claims['cell_x'].isna()].shape[0]}"
         + " claims without coordinates after web scrape."

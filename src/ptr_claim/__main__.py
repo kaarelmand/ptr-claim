@@ -25,6 +25,7 @@ if SCRAPESWITCH.lower().strip() in ("true", "t", "yes", "y", "1"):
 claims = pd.read_json(SCRAPEFILE)
 agg_claims = prep_data(claims=claims, methods=METHODS)
 
+# TODO: figure out how to use importlib.resources here, or at least Pathlib
 mapfile = os.path.join(os.path.dirname(__file__), "data", MAPFILE)
 gridmap_corners = [int(c) for c in MAPCORNERS.split()]
 
@@ -39,7 +40,7 @@ fig = draw_map(
 app = Dash(
     __name__, external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 )
-# Entry point for gunicorn
+# Entry point for gunicorn.
 server = app.server
 
 app.layout = html.Div(
@@ -69,7 +70,7 @@ def display_on_click(clickData):
 
 
 def main():
-    app.run_server(debug=True)
+    app.run_server()
 
 
 if __name__ == "__main__":
