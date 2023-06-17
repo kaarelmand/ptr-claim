@@ -19,14 +19,14 @@ MAPCORNERS = os.environ.get("PTR_MAPCORNERS", "-42 61 -64 38")
 WIDTH = os.environ.get("PTR_WIDTH", "900")
 
 
-mapfile = os.path.join(os.path.dirname(__file__), "data", MAPFILE)
-gridmap_corners = [int(c) for c in MAPCORNERS.split()]
-
 if SCRAPESWITCH.lower().strip() in ("true", "t", "yes", "y", "1"):
     crawl(URL, SCRAPEFILE)
 
 claims = pd.read_json(SCRAPEFILE)
 agg_claims = prep_data(claims=claims, methods=METHODS)
+
+mapfile = os.path.join(os.path.dirname(__file__), "data", MAPFILE)
+gridmap_corners = [int(c) for c in MAPCORNERS.split()]
 
 fig = draw_map(
     claims=agg_claims,
@@ -39,6 +39,7 @@ fig = draw_map(
 app = Dash(
     __name__, external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 )
+# Entry point for gunicorn
 server = app.server
 
 app.layout = html.Div(
@@ -67,5 +68,9 @@ def display_on_click(clickData):
         return "Click on any point to show claim information."
 
 
+def main():
+    app.run_server(debug=True)
+
+
 if __name__ == "__main__":
-    app.run_server()
+    main()
