@@ -1,42 +1,134 @@
 {
-    "https://www.tamriel-rebuilt.org/claims/othreleth-woods-5-ancestral-tomb-1": [
-        -5,
-        -31
-    ],
-    "https://www.tamriel-rebuilt.org/claims/olanar-shaav-grotto": [
-        55,
-        17
-    ],
-    "https://www.tamriel-rebuilt.org/claims/olanar-vadridan": [
-        54,
-        15
-    ],
-    "https://www.tamriel-rebuilt.org/claims/thirr-valley-6-redoran-ruin": [
-        2,
-        -46
-    ],
-    "https://www.tamriel-rebuilt.org/claims/thirr-valley-6-ranch-1": [
-        3,
-        -46
-    ],
-    "https://www.tamriel-rebuilt.org/claims/thirr-valley-6-grotto-2": [
-        3,
-        -45
-    ],
-    "https://www.tamriel-rebuilt.org/claims/thirr-valley-4-ancestral-tomb-2": [
-        8,
-        -45
-    ],
-    "https://www.tamriel-rebuilt.org/claims/archaeology-ancestral-tomb": [
-        -18,
-        -7
-    ],
-    "https://www.tamriel-rebuilt.org/claims/narsis-waterfront-79-ship": [
-        7,
-        -50
-    ],
-    "https://www.tamriel-rebuilt.org/claims/narsis-waterfront-78-ship": [
-        7,
-        -50
-    ]
+  "https://www.tamriel-rebuilt.org/claims/othreleth-woods-5-ancestral-tomb-1": [
+    -5,
+    -31
+  ],
+  "https://www.tamriel-rebuilt.org/claims/olanar-shaav-grotto": [
+    55,
+    17
+  ],
+  "https://www.tamriel-rebuilt.org/claims/olanar-vadridan": [
+    54,
+    15
+  ],
+  "https://www.tamriel-rebuilt.org/claims/thirr-valley-6-redoran-ruin": [
+    2,
+    -46
+  ],
+  "https://www.tamriel-rebuilt.org/claims/thirr-valley-6-ranch-1": [
+    3,
+    -46
+  ],
+  "https://www.tamriel-rebuilt.org/claims/thirr-valley-6-grotto-2": [
+    3,
+    -45
+  ],
+  "https://www.tamriel-rebuilt.org/claims/thirr-valley-4-ancestral-tomb-2": [
+    8,
+    -45
+  ],
+  "https://www.tamriel-rebuilt.org/claims/archaeology-ancestral-tomb": [
+    -18,
+    -7
+  ],
+  "https://www.tamriel-rebuilt.org/claims/narsis-waterfront-79-ship": [
+    7,
+    -50
+  ],
+  "https://www.tamriel-rebuilt.org/claims/narsis-waterfront-78-ship": [
+    7,
+    -50
+  ],
+  "https://www.tamriel-rebuilt.org/claims/tr-firemoth-galleon-shipwreck": [
+    -7,
+    -10
+  ],
+  "https://www.tamriel-rebuilt.org/claims/thirr-valley-6-ancestral-tomb-1": [
+    -1,
+    -43
+  ],
+  "https://www.tamriel-rebuilt.org/claims/thirr-valley-6-farm-2-b": [
+    1,
+    -45
+  ],
+  "https://www.tamriel-rebuilt.org/claims/thirr-valley-6-farm-4": [
+    -1,
+    -44
+  ],
+  "https://www.tamriel-rebuilt.org/claims/thirr-valley-6-farm-4-b": [
+    -1,
+    -44
+  ],
+  "https://www.tamriel-rebuilt.org/claims/thirr-valley-6-ranch-2": [
+    2,
+    -46
+  ],
+  "https://www.tamriel-rebuilt.org/claims/thirr-valley-6-ranch-2-b": [
+    2,
+    -46
+  ],
+  "https://www.tamriel-rebuilt.org/claims/thirr-valley-6-ranch-2-c": [
+    2,
+    -46
+  ],
+  "https://www.tamriel-rebuilt.org/claims/thirr-valley-6-ranch-3": [
+    2,
+    -45
+  ],
+  "https://www.tamriel-rebuilt.org/claims/thirr-valley-6-ranch-3-b": [
+    2,
+    -45
+  ],
+  "https://www.tamriel-rebuilt.org/claims/narsis-vandirelyon-stronghold": [
+    1,
+    -41
+  ],
+  "https://www.tamriel-rebuilt.org/claims/narsis-waterfront-sewers": [
+    7,
+    -50
+  ],
+  "https://www.tamriel-rebuilt.org/claims/olanar-tel-inan": [
+    55,
+    15
+  ],
+  "https://www.tamriel-rebuilt.org/claims/thirr-valley-6-farm-3-manor": [
+    0,
+    -42
+  ],
+  "https://www.tamriel-rebuilt.org/claims/thirr-valley-6-farm-3-house": [
+    0,
+    -42
+  ],
+  "https://www.tamriel-rebuilt.org/claims/tem-general-symmachus-refit": [
+    16,
+    14
+  ],
+  "https://www.tamriel-rebuilt.org/claims/mainland-cutter-ship-refits": [
+    -3,
+    -13
+  ],
+  "https://www.tamriel-rebuilt.org/claims/shipal-shin-01-guard-tower": [
+    8,
+    -50
+  ],
+  "https://www.tamriel-rebuilt.org/claims/tem-helseth-refit": [
+    5,
+    -18
+  ],
+  "https://www.tamriel-rebuilt.org/claims/tem-princess-morgiah-refit": [
+    7,
+    -18
+  ],
+  "https://www.tamriel-rebuilt.org/claims/tem-saber-straits-refit": [
+    17,
+    15
+  ],
+  "https://www.tamriel-rebuilt.org/claims/northern-wind-refit": [
+    20,
+    23
+  ],
+  "https://www.tamriel-rebuilt.org/claims/stendarr-tower-haunting-cutter": [
+    15,
+    -17
+  ]
 }

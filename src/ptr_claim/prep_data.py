@@ -28,8 +28,8 @@ def get_coords_from_image(url, crop_coords=(0, 0, 300, 35), upscale=2, **kwargs)
 
     Args:
         url (str): URL from which to find image.
-        crop_coords (tuple, optional): Heuristically crop the image to find the cell
-            coordinates. Defaults to (0, 0, 200, 50).
+        crop_coords (tuple, optional): Crop the image to find the cell coordinates.
+            Defaults to (0, 0, 200, 50), as that's where text is most times.
         upscale (int, optional): Factor to scale images by. Scaling a small image up
             often helps Tesseract.
         **kwargs: Passed to pytesseract.image_to_string.
@@ -42,7 +42,7 @@ def get_coords_from_image(url, crop_coords=(0, 0, 300, 35), upscale=2, **kwargs)
     # OR, a separator of only a minus also works.
     cell_regex = r"(-?\d+)(?:(?:[,.]+|\s)\s?(-?\d+)|(-\d+))"
 
-    logging.info(f"Fetching image at url: {url}.")
+    logging.info(f"Fetching image at url: {url}")
     try:
         image = Image.open(urlopen(url))
     except HTTPError:
@@ -66,60 +66,63 @@ def get_coords_from_image(url, crop_coords=(0, 0, 300, 35), upscale=2, **kwargs)
         return None, None
 
 
-def fill_coords_from_images(
+def add_url_hints_from_images(
     df,
-    url_col="image_url",
+    img_url_col="image_url",
+    url_col="url",
     coord_cols=("cell_x", "cell_y"),
-    na_only=True,
     **kwargs,
 ):
-    """Fill specificed coordinate columns of Dataframe by reading coordinates from an
-    image.
+    """Populate the URL hints coordinate database with coordinates found on images.
 
     Args:
-        df (pandas.DataFrame): DataFrame containing claims and an url_col column.
-        url_col (str, optional): df column name where the image URL is stored. Defaults
-            to "image_url".
+        df (pandas.DataFrame): DataFrame containing claims and an img_url_col column.
+        img_url_col (str, optional): df column name where the image URL is stored.
+            Defaults to "image_url".
+        url_col (str, optional): df column name where the claim URL is stored. Defaults
+            to "url".
         coord_cols (tuple, optional): Tuple of two df column names where the resulting
             coordinates are stored. Defaults to ("cell_x", "cell_y").
-        na_only (bool): Whether to fill only missing values in this method. Defaults to
-            True.
         **kwargs: passed to get_coords_from_image
     """
-    if na_only:
-        mask = (df[coord_cols[0]].isna()) & (~df[url_col].isna())
-        logging.debug(f"Only modifying empty coordinates with non-empty '{url_col}'.")
+    # TODO: try to use importlib.resources or at least Pathlib
+    url_hints_path = os.path.join(os.path.dirname(__file__), "data", "url_hints.json")
+    with open(url_hints_path) as urlfile:
+        url_hints = json.load(urlfile)
+        logging.debug("Using URL coordinate hints database.")
+
+    # Rows where coordinate is known, which aren't in the URL database and for which
+    # there is an image.
+    mask = (
+        (df[coord_cols[0]].isna())
+        & (~df[url_col].isin(url_hints.keys()))
+        & (~df[img_url_col].isna())
+    )
+
+    def fill_url_dict_from_row(row, **kwargs):
+        x, y = get_coords_from_image(row[img_url_col], **kwargs)
+        if x is not None:
+            logging.debug(
+                f"Adding coordinates {x}, {y} to following claims:\n"
+                + "\n".join(row[url_col])
+            )
+            for url in row[url_col]:
+                url_hints[url] = [x, y]
+
+    if df[mask].shape[0] > 0:
+        # Fetch each image only once, apply resulting coordinates to all associated
+        # URLs.
+        grouped_img_urls = df.loc[mask, [url_col, img_url_col]].groupby(img_url_col)
+        urls_per_img = grouped_img_urls[url_col].agg(list).to_frame().reset_index()
+        logging.debug(
+            f"Attempting to fetch coordinates for {df[mask].shape[0]} claims with "
+            + f"images, {urls_per_img.shape[0]} unique images in total:"
+        )
+        urls_per_img.apply(fill_url_dict_from_row, axis="columns", **kwargs)
+        with open(url_hints_path, "w") as urlfile:
+            json.dump(url_hints, urlfile, indent=2)
     else:
-        logging.debug(f"Modifying all coordinates with non-empty '{url_col}'.")
-        mask = ~df[url_col].isna()
-    logging.debug(f"Modifying {df[mask].shape[0]} rows.")
-
-    # Fetch known coordinate values from file.
-    # with resources.open_binary(data, "img_coords.json") as coord_db_file:
-
-    img_coord_path = os.path.join(os.path.dirname(__file__), "data", "img_coords.json")
-    with open(img_coord_path) as coord_db_file:
-        coord_db = json.load(coord_db_file)
-        logging.debug("Using existing image coordinate database.")
-
-    # Only fetch images that aren't in the database yet.
-    requested_imgs = df.loc[mask, url_col].to_list()
-    new_imgs = set([url for url in requested_imgs if url not in coord_db])
-    if len(new_imgs) > 0:
-        logging.debug(f"Fetching new coordinates for {len(new_imgs)} images.")
-        for url in new_imgs:
-            coord_db[url] = get_coords_from_image(url, **kwargs)
-
-        # Print missing URLs
-        logging.info("New coordinates found by OCR:")
-        for url in new_imgs:
-            logging.info(f"{url}: {coord_db[url]}")
-    else:
-        logging.debug("No new images needed.")
-
-    # Add requested coordinates into the dataframe.
-    df.loc[mask, coord_cols[0]] = df.loc[mask, url_col].apply(lambda x: coord_db[x][0])
-    df.loc[mask, coord_cols[1]] = df.loc[mask, url_col].apply(lambda x: coord_db[x][1])
+        logging.debug("No images found to be queried.")
 
 
 def fill_coords_from_hints(
@@ -201,30 +204,36 @@ def make_nice_hovertext(x, url=False):
 
 
 def locate_claims(claims, methods):
+    """Find or fix the coordinates for claims with missing coordinate data using a
+    variety of methods.
+
+    Args:
+        claims (pandas.Dataframe): A dataframe of claims.
+        methods (str): Methods for locating coordinates, one or several of "i", "u",
+        "t", "e".
+    """
+    if "i" in methods:
+        # Use OCR to read missing cell coordinates.
+        logging.info("Fetching images for unlocated claims not in URL hint database.")
+        add_url_hints_from_images(claims)
+
     if "u" in methods:
         # Use known urls to get missing cell coordinates for one-offs.
         # TODO: try to use importlib.resources or at least Pathlib
-        # with resources.open_binary(data, "url_hints.json") as urlfile:
         url_hints_path = os.path.join(
             os.path.dirname(__file__), "data", "url_hints.json"
         )
         with open(url_hints_path) as urlfile:
             url_hints = json.load(urlfile)
         fill_coords_from_hints(claims, url_hints, "url", na_only=False)
-
-    if "i" in methods:
-        # Use OCR to read missing cell coordinates.
-        logging.info("Fetching images for all unlocated claims.")
-        fill_coords_from_images(claims)
         logging.info(
             f"{claims[claims['cell_x'].isna()].shape[0]}"
-            + " claims without coordinates after image analysis."
+            + " claims without coordinates after URL hints accounted for."
         )
 
     if "t" in methods:
         # Use known location names to guess missing cell coordinates.
         # TODO: try to use importlib.resources or at least Pathlib
-        # with resources.open_binary(data, "name_hints.json") as namefile:
         name_hints_path = os.path.join(
             os.path.dirname(__file__), "data", "name_hints.json"
         )
@@ -295,6 +304,7 @@ def prep_data(claims, methods="itue"):
     aggregated_claims["cell_x_map"] = aggregated_claims["cell_x"] + 0.5
     aggregated_claims["cell_y_map"] = aggregated_claims["cell_y"] + 0.5
     # We want plotted counts to scale with area and in a logarithmic fashion.
+    # TODO: Make this nicer (so that two claims are differentiated form one, etc).
     aggregated_claims["map_size"] = (np.log(aggregated_claims["count"]) + 1) * 30
 
     # Return usable data.

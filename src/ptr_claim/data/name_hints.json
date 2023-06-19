@@ -1,5 +1,5 @@
 {
-    "Ald Iuval Temple": [
+    "Ald Iuval": [
         3,
         -42
     ],
@@ -34,5 +34,13 @@
     "Andothren": [
         0,
         -16
+    ],
+    "Almas Thirr": [
+        6,
+        -28
+    ],
+    "Vounoura": [
+        21,
+        32
     ]
 }

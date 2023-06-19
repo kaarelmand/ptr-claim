@@ -70,7 +70,7 @@ def display_on_click(clickData):
 
 
 def main():
-    app.run_server()
+    app.run_server(debug=True)
 
 
 if __name__ == "__main__":
