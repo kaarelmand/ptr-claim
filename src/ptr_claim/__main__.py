@@ -14,7 +14,7 @@ SCRAPESWITCH = os.environ.get("PTR_SCRAPESWITCH", "True")
 URL = os.environ.get("PTR_URL", "https://www.tamriel-rebuilt.org/claims/interiors")
 SCRAPEFILE = os.environ.get("PTR_SCRAPEFILE", "interiors.json")
 METHODS = os.environ.get("PTR_METHODS", "itue")
-MAPFILE = os.environ.get("PTR_MAPFILE", "Tamriel Rebuilt Province Map_2022-11-25.png")
+MAPFILE = os.environ.get("PTR_MAPFILE", "Tamriel_Rebuilt_Claims_Map_2023-07-13.png")
 MAPCORNERS = os.environ.get("PTR_MAPCORNERS", "-42 61 -64 38")
 WIDTH = os.environ.get("PTR_WIDTH", "900")
 
@@ -22,7 +22,11 @@ WIDTH = os.environ.get("PTR_WIDTH", "900")
 if SCRAPESWITCH.lower().strip() in ("true", "t", "yes", "y", "1"):
     crawl(URL, SCRAPEFILE)
 
-claims = pd.read_json(SCRAPEFILE)
+try:
+    claims = pd.read_json(SCRAPEFILE)
+except ValueError as err:
+    raise Exception(f"Cannot read {SCRAPEFILE}. Is it a valid .json file?")
+
 agg_claims = prep_data(claims=claims, methods=METHODS)
 
 # TODO: figure out how to use importlib.resources here, or at least Pathlib
