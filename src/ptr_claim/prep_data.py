@@ -305,7 +305,7 @@ def prep_data(claims, methods="itue"):
     aggregated_claims["cell_y_map"] = aggregated_claims["cell_y"] + 0.5
     # We want plotted counts to scale with area and in a logarithmic fashion.
     # TODO: Make this nicer (so that two claims are differentiated form one, etc).
-    aggregated_claims["map_size"] = (np.log(aggregated_claims["count"]) + 1) * 30
+    aggregated_claims["map_size"] = (np.log(aggregated_claims["count"] + 1)) * 30
 
     # Return usable data.
     return aggregated_claims

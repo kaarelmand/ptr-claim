@@ -6,7 +6,6 @@ from .prep_data import _stages as stages
 
 
 def draw_map(claims, map, corners, title, width=1000, cmap="Plasma"):
-
     fig = go.FigureWidget(
         layout_xaxis_range=(corners[0], corners[1]),
         layout_yaxis_range=(corners[2], corners[3]),
@@ -43,14 +42,14 @@ def draw_map(claims, map, corners, title, width=1000, cmap="Plasma"):
                 name=stage,
                 x=data["cell_x_map"],
                 y=data["cell_y_map"],
-                # Plotly uses html tags, the 'details' column uses python escapes.
+                # Plotly uses html tags, the 'details' column uses Python escapes.
                 text=data["details"].str.replace("\n", "<br>"),
                 customdata=data[["cell_x", "cell_y"]],
                 mode="markers",
                 marker=dict(
                     size=data["count"],
                     sizemode="area",
-                    # Recommended algo in plotly docs.
+                    # Recommended algorithm in Plotly docs.
                     sizeref=2 * data["map_size"].max() / (40**2),
                     sizemin=4,
                     color=colordict[stage],
