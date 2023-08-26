@@ -18,7 +18,7 @@ _stages = [
     "In Development",
     "Pending Review",
     "Under Review",
-    "Ready to Merge",
+    "Ready to merge",
     "Merged",
 ]
 
@@ -168,6 +168,7 @@ def get_stage_mean(stages_iter):
     Returns:
         str: The "mean" stage name.
     """
+    # TODO: use _stages for enumeration
     enumdict = {stage: i for i, stage in enumerate(stages_iter)}
     reversedict = dict(enumerate(stages_iter))
     group_nums = [enumdict[stage] for stage in stages_iter]
@@ -261,8 +262,9 @@ def locate_claims(claims, methods):
         logging.warning(
             f"{len(not_located)} claims not located: \n" + "\n".join(not_located)
         )
-    else:
-        logging.info("All claims located!")
+        return claims[claims["cell_x"].isna()]
+
+    logging.info("All claims located!")
 
 
 def prep_data(claims, methods="itue"):
@@ -272,7 +274,7 @@ def prep_data(claims, methods="itue"):
     )
 
     # Fill missing cell values.
-    locate_claims(claims, methods)
+    not_located = locate_claims(claims, methods)
 
     # Visualize only claims with known cell coordinates.
     located_claims = claims[~claims["cell_x"].isna()].copy()
@@ -307,5 +309,5 @@ def prep_data(claims, methods="itue"):
     # TODO: Make this nicer (so that two claims are differentiated form one, etc).
     aggregated_claims["map_size"] = (np.log(aggregated_claims["count"] + 1)) * 30
 
-    # Return usable data.
-    return aggregated_claims
+    # Return usable data and non-located stuff.
+    return aggregated_claims, not_located

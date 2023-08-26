@@ -11,7 +11,10 @@ from ptr_claim.make_app import generate_table
 
 
 SCRAPESWITCH = os.environ.get("PTR_SCRAPESWITCH", "True")
-URL = os.environ.get("PTR_URL", "https://www.tamriel-rebuilt.org/claims/interiors")
+URL = os.environ.get(
+    "PTR_URL",
+    "https://www.tamriel-rebuilt.org/claims/interiors?field_claim_stage_tid_op=or&field_claim_stage_tid[]=20&field_claim_stage_tid[]=139&field_claim_stage_tid[]=21&field_claim_stage_tid[]=22&field_claim_stage_tid[]=23&field_claim_stage_tid[]=24",
+)
 SCRAPEFILE = os.environ.get("PTR_SCRAPEFILE", "interiors.json")
 METHODS = os.environ.get("PTR_METHODS", "itue")
 MAPFILE = os.environ.get("PTR_MAPFILE", "Tamriel_Rebuilt_Claims_Map_2023-07-13.png")
@@ -27,7 +30,7 @@ try:
 except ValueError as err:
     raise Exception(f"Cannot read {SCRAPEFILE}. Is it a valid .json file?")
 
-agg_claims = prep_data(claims=claims, methods=METHODS)
+agg_claims, non_located = prep_data(claims=claims, methods=METHODS)
 
 # TODO: figure out how to use importlib.resources here, or at least Pathlib
 mapfile = os.path.join(os.path.dirname(__file__), "data", MAPFILE)
@@ -40,6 +43,14 @@ fig = draw_map(
     width=float(WIDTH),
     title="",
 )
+
+if not non_located.empty:
+    unlocated_table = [
+        html.H4("Unlocated interior claims:"),
+        html.Div(generate_table(non_located)),
+    ]
+else:
+    unlocated_table = [html.Div("All claims located.")]
 
 app = Dash(
     __name__, external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css"]
@@ -54,9 +65,8 @@ app.layout = html.Div(
         ),
         html.Div(datetime.now(timezone.utc).strftime(r"%Y-%m-%d %H:%M %Z")),
         dcc.Graph(id="clickable-graph", figure=fig),
-        html.Div(
-            id="claim-info-output",
-        ),
+        html.Div(id="claim-info-output"),
+        *unlocated_table,
     ],
 )
 
