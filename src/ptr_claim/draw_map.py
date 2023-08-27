@@ -41,14 +41,18 @@ def draw_map(claims, map, corners, title, width=1000, cmap="Plasma"):
             visible = "legendonly"
         else:
             visible = True
+        x = data["cell_x"]
+        y = data["cell_y"]
         fig.add_trace(
             go.Scatter(
                 name=stage,
-                x=data["cell_x"],
-                y=data["cell_y"],
+                x=x,
+                y=y,
                 # Plotly uses html tags, the 'details' column uses Python escapes.
                 text=data["details"].str.replace("\n", "<br>"),
                 customdata=data[["cell_x", "cell_y"]],
+                hovertemplate="<b>Cell: %{x:d}, %{y:d}</b><br>%{text}"
+                + "<extra></extra>",
                 mode="markers",
                 marker=dict(
                     size=data["count"],
