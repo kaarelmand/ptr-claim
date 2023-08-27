@@ -168,9 +168,8 @@ def get_stage_mean(stages_iter):
     Returns:
         str: The "mean" stage name.
     """
-    # TODO: use _stages for enumeration
-    enumdict = {stage: i for i, stage in enumerate(stages_iter)}
-    reversedict = dict(enumerate(stages_iter))
+    enumdict = {stage: i for i, stage in enumerate(_stages)}
+    reversedict = dict(enumerate(_stages))
     group_nums = [enumdict[stage] for stage in stages_iter]
     stage_mean = round(np.mean(group_nums))
     return reversedict[stage_mean]
