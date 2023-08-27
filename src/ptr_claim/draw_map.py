@@ -15,8 +15,8 @@ def draw_map(claims, map, corners, title, width=1000, cmap="Plasma"):
     fig.add_layout_image(
         dict(
             source=Image.open(map),
-            x=corners[0],
-            y=corners[3],
+            x=corners[0] - 0.5,
+            y=corners[3] - 0.5,
             xref="x",
             yref="y",
             sizex=corners[1] - corners[0],
@@ -44,8 +44,8 @@ def draw_map(claims, map, corners, title, width=1000, cmap="Plasma"):
         fig.add_trace(
             go.Scatter(
                 name=stage,
-                x=data["cell_x_map"],
-                y=data["cell_y_map"],
+                x=data["cell_x"],
+                y=data["cell_y"],
                 # Plotly uses html tags, the 'details' column uses Python escapes.
                 text=data["details"].str.replace("\n", "<br>"),
                 customdata=data[["cell_x", "cell_y"]],
