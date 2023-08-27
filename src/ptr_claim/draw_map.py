@@ -6,17 +6,20 @@ from .prep_data import _stages as stages
 
 
 def draw_map(claims, map, corners, title, width=1000, cmap="Plasma"):
+    # We will display the map offset by 0.5 units in order for scatter points to
+    # display in the middle of cells.
+    shifted_corners = [c - 0.5 for c in corners]
     fig = go.FigureWidget(
-        layout_xaxis_range=(corners[0], corners[1]),
-        layout_yaxis_range=(corners[2], corners[3]),
+        layout_xaxis_range=(shifted_corners[0], shifted_corners[1]),
+        layout_yaxis_range=(shifted_corners[2], shifted_corners[3]),
     )
 
     # Add background image
     fig.add_layout_image(
         dict(
             source=Image.open(map),
-            x=corners[0] - 0.5,
-            y=corners[3] - 0.5,
+            x=shifted_corners[0],
+            y=shifted_corners[3],
             xref="x",
             yref="y",
             sizex=corners[1] - corners[0],
