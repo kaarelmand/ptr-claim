@@ -13,7 +13,7 @@ from ptr_claim.make_app import generate_table
 SCRAPESWITCH = os.environ.get("PTR_SCRAPESWITCH", "True")
 URL = os.environ.get(
     "PTR_URL",
-    "https://www.tamriel-rebuilt.org/claims/interiors?field_claim_stage_tid_op=or&field_claim_stage_tid[]=20&field_claim_stage_tid[]=139&field_claim_stage_tid[]=21&field_claim_stage_tid[]=22&field_claim_stage_tid[]=23&field_claim_stage_tid[]=24",
+    "https://www.tamriel-rebuilt.org/claims/interiors?field_claim_priority_tid=All&field_claim_stage_tid_op=or&field_claim_stage_tid%5B%5D=19&field_claim_stage_tid%5B%5D=20&field_claim_stage_tid%5B%5D=139&field_claim_stage_tid%5B%5D=21&field_claim_stage_tid%5B%5D=22&field_claim_stage_tid%5B%5D=23&field_claim_stage_tid%5B%5D=24&title_op=contains&title=&field_claimant_target_id_entityreference_filter_op=in&field_claimant_target_id_entityreference_filter=All&field_child_claim_target_id_entityreference_filter_op=in&field_parent_claim_target_id_entityreference_filter_op=in",
 )
 SCRAPEFILE = os.environ.get("PTR_SCRAPEFILE", "interiors.json")
 METHODS = os.environ.get("PTR_METHODS", "itue")

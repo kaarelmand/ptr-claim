@@ -37,6 +37,10 @@ def draw_map(claims, map, corners, title, width=1000, cmap="Plasma"):
     # Draw claims
     for stage in presentstages:
         data = claims[claims["stage_mean"] == stage]
+        if stage == "Design":
+            visible = "legendonly"
+        else:
+            visible = True
         fig.add_trace(
             go.Scatter(
                 name=stage,
@@ -55,6 +59,7 @@ def draw_map(claims, map, corners, title, width=1000, cmap="Plasma"):
                     color=colordict[stage],
                     line=dict(width=1, color="DarkSlateGrey"),
                 ),
+                visible=visible,
             )
         )
 
