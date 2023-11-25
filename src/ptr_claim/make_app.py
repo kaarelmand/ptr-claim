@@ -1,8 +1,4 @@
-from datetime import datetime, timezone
-
-from dash import Dash, dcc, html, Input, Output
-
-from .draw_map import draw_map
+from dash import html
 
 
 def generate_row(ser):

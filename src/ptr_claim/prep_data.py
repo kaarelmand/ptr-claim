@@ -170,9 +170,15 @@ def get_stage_mean(stages_iter):
     """
     enumdict = {stage: i for i, stage in enumerate(_stages)}
     reversedict = dict(enumerate(_stages))
-    group_nums = [enumdict[stage] for stage in stages_iter]
-    stage_mean = round(np.mean(group_nums))
-    return reversedict[stage_mean]
+    num_stages = [enumdict[stage] for stage in stages_iter]
+    stage_mean = round(np.mean(num_stages))
+    closest_to_mean = min(num_stages, key=lambda x: abs(x - stage_mean))
+    # To avoid being-worked-on stuff from being hidden by default, bump mean stage up by
+    # on "design" groups, if other stages are also present.
+    if closest_to_mean == 0 and any(s > 0 for s in num_stages):
+        nodesign = [s for s in stages_iter if s != "Design"]
+        return get_stage_mean(nodesign)
+    return reversedict[closest_to_mean]
 
 
 def get_stage_counts(stages_list):
@@ -301,9 +307,6 @@ def prep_data(claims, methods="itue"):
         stage_groups=("stage", get_stage_counts),
     ).reset_index()
 
-    # Put mapping coordinates in the middle of the cells.
-    aggregated_claims["cell_x_map"] = aggregated_claims["cell_x"] + 0.5
-    aggregated_claims["cell_y_map"] = aggregated_claims["cell_y"] + 0.5
     # We want plotted counts to scale with area and in a logarithmic fashion.
     # TODO: Make this nicer (so that two claims are differentiated form one, etc).
     aggregated_claims["map_size"] = (np.log(aggregated_claims["count"] + 1)) * 30

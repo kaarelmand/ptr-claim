@@ -46,3 +46,6 @@ Options can be left default for most purposes. If you do want to customize, then
   Expects four integers separated by spaces: `X_left X_right Y_bottom Y_top`. Defaults
   to `-42 61 -64 38`.
 - PTR_WIDTH -- Output image width (px). Defaults to 1000.
+- PTR_CMAP -- Colormap used for categorizing claim stages. Can be specified as a list of
+  `[scale, color]` pairs, as a list of colors, or as a named plotly colorscale. Defaults
+  to `"Plasma"`.

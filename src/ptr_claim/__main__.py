@@ -20,6 +20,7 @@ METHODS = os.environ.get("PTR_METHODS", "itue")
 MAPFILE = os.environ.get("PTR_MAPFILE", "Tamriel_Rebuilt_Claims_Map_2023-07-13.png")
 MAPCORNERS = os.environ.get("PTR_MAPCORNERS", "-42 61 -64 38")
 WIDTH = os.environ.get("PTR_WIDTH", "900")
+COLORMAP = os.environ.get("PTR_CMAP", "Plasma")
 
 
 if SCRAPESWITCH.lower().strip() in ("true", "t", "yes", "y", "1"):
@@ -42,6 +43,7 @@ fig = draw_map(
     corners=gridmap_corners,
     width=float(WIDTH),
     title="",
+    cmap=COLORMAP,
 )
 
 if not non_located.empty:
